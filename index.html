@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulir Penyewaan — Raja Sewa Kamera dan Elektronik</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* Mencegah layar ikut ter-scroll saat menggambar tanda tangan di perangkat sentuh */
+    #signaturePad {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen py-8 px-4">
+
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <!-- Header Brand -->
+    <div class="bg-slate-900 text-white px-6 py-6 border-b-4 border-amber-500">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <span class="inline-block bg-amber-500 text-slate-950 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded mb-1.5">
+            Formulir Resmi Penyewaan
+          </span>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+            RAJA SEWA KAMERA DAN ELEKTRONIK
+          </h1>
+          <p class="text-slate-300 text-xs sm:text-sm mt-1">
+            Isi seluruh data penyewa, unggah foto identitas/diri, dan bubuhkan tanda tangan untuk mencetak bukti sewa beserta lampiran syarat & ketentuan (PDF).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Input -->
+    <form id="rentalForm" class="p-6 sm:p-8 space-y-5" onsubmit="return false;">
+      
+      <!-- Bagian 1: Identitas Penyewa -->
+      <div class="border-b border-slate-200 pb-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">1. Identitas Penyewa</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Nama Penyewa -->
+        <div>
+          <label for="nama" class="block text-sm font-semibold text-slate-700 mb-1">
+            Nama Lengkap Penyewa <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="nama"
+            placeholder="Sesuai KTP"
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            required
+          />
+        </div>
+
+        <!-- No. KTP -->
+        <div>
+          <label for="noKtp" class="block text-sm font-semibold text-slate-700 mb-1">
+            No. KTP (NIK) <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="noKtp"
+            inputmode="numeric"
+            maxlength="20"
+            placeholder="Masukkan 16 digit NIK KTP"
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- No. WA Penyewa -->
+        <div>
+          <label for="wa" class="block text-sm font-semibold text-slate-700 mb-1">
+            No. WhatsApp Penyewa <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="tel"
+            id="wa"
+            placeholder="Contoh: 081234567890"
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            required
+          />
+        </div>
+
+        <!-- Pekerjaan Penyewa -->
+        <div>
+          <label for="pekerjaan" class="block text-sm font-semibold text-slate-700 mb-1">
+            Pekerjaan Penyewa <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="pekerjaan"
+            placeholder="Contoh: Karyawan Swasta / Wiraswasta / Mahasiswa"
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Alamat Penyewa -->
+      <div>
+        <label for="alamat" class="block text-sm font-semibold text-slate-700 mb-1">
+          Alamat Lengkap Penyewa <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          id="alamat"
+          rows="2"
+          placeholder="Masukkan alamat domisili lengkap (Jalan, RT/RW, Kelurahan, Kecamatan, Kota)"
+          class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Bagian 2: Detail Barang & Deskripsi Penyewaan -->
+      <div class="border-b border-slate-200 pb-2 pt-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">2. Rincian Barang & Persetujuan Sewa</h2>
+      </div>
+
+      <!-- Barang yang Disewa -->
+      <div>
+        <label for="barang" class="block text-sm font-semibold text-slate-700 mb-1">
+          Barang yang Disewa <span class="text-red-500">*</span>
+        </label>
+        <textarea
+          id="barang"
+          rows="2"
+          placeholder="Contoh: 1 Unit Kamera Sony A7 Mark II + Lensa FE 28-70mm, 2 Baterai, Charger, Tas Kamera"
+          class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Skema & Deskripsi Penyewaan -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="jenisSewa" class="block text-sm font-semibold text-slate-700 mb-1">
+            Kategori Durasi <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="jenisSewa"
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          >
+            <option value="Sewa Harian">Sewa Harian</option>
+            <option value="Sewa Bulanan">Sewa Bulanan</option>
+            <option value="Sewa Mingguan">Sewa Mingguan</option>
+            <option value="Sewa Paket / Event">Sewa Paket / Event</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="deskripsiSewa" class="block text-sm font-semibold text-slate-700 mb-1">
+            Deskripsi Penyewaan (Narasi Tanggal, Durasi & Keterangan) <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="deskripsiSewa"
+            rows="2"
+            placeholder="Contoh: Sewa harian selama 3 hari mulai tanggal 25 Nov 2026 pukul 10.00 WITA s/d 28 Nov 2026 pukul 10.00 WITA untuk keperluan dokumentasi acara."
+            class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Nama Petugas Approval Raja Sewa -->
+      <div>
+        <label for="petugasApproval" class="block text-sm font-semibold text-slate-700 mb-1">
+          Nama Petugas Approval (Raja Sewa) <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="petugasApproval"
+          placeholder="Masukkan nama admin / petugas Raja Sewa yang menyetujui"
+          class="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-100"
+          required
+        />
+      </div>
+
+      <!-- Bagian 3: Lampiran Foto & Tanda Tangan -->
+      <div class="border-b border-slate-200 pb-2 pt-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">3. Verifikasi Foto & Tanda Tangan</h2>
+      </div>
+
+      <!-- Upload Gambar Penyewa -->
+      <div>
+        <label for="fotoPenyewa" class="block text-sm font-semibold text-slate-700 mb-1">
+          Upload Gambar Penyewa (Foto Diri / Foto KTP / Serah Terima) <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="file"
+          id="fotoPenyewa"
+          accept="image/*"
+          class="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-800 hover:file:bg-amber-100 cursor-pointer border border-slate-300 rounded-lg p-1.5"
+        />
+        <!-- Preview Gambar -->
+        <div id="imagePreviewWrapper" class="hidden mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+          <p class="text-xs font-medium text-slate-500 mb-2">Pratinjau Gambar Terunggah:</p>
+          <img id="imagePreview" src="" alt="Preview Penyewa" class="max-h-48 rounded-md border border-slate-300 object-contain" />
+        </div>
+      </div>
+
+      <!-- Tanda Tangan Penyewa -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-sm font-semibold text-slate-700">
+            Tanda Tangan Penyewa <span class="text-red-500">*</span>
+          </label>
+          <button
+            type="button"
+            id="clearSignature"
+            class="text-xs font-semibold text-red-600 hover:text-red-700 underline"
+          >
+            Hapus / Ulangi Tanda Tangan
+          </button>
+        </div>
+        <div class="border-2 border-dashed border-slate-300 rounded-lg bg-slate-50 overflow-hidden">
+          <canvas id="signaturePad" class="w-full h-40 block cursor-crosshair"></canvas>
+        </div>
+        <p class="text-xs text-slate-500 mt-1.5">
+          Dengan menandatangani kotak di atas, penyewa menyatakan menyetujui seluruh rincian penyewaan serta Syarat & Ketentuan pada Lampiran II.
+        </p>
+      </div>
+
+      <!-- Indikator Status Kelengkapan -->
+      <div id="statusInfo" class="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+        Status: Lengkapi seluruh kolom isian, upload gambar penyewa, dan tanda tangan untuk memunculkan tombol Generate PDF.
+      </div>
+
+      <!-- Tombol Generate PDF (Muncul otomatis setelah semua terisi & gambar terupload) -->
+      <div id="pdfActionContainer" class="hidden pt-2">
+        <button
+          type="button"
+          id="generatePdfBtn"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 px-5 rounded-xl shadow-lg transition flex items-center justify-center gap-2.5 cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Download / Generate File PDF (2 Halaman + Lampiran Ketentuan)
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Daftar ID input teks wajib
+    const textInputIds = [
+      'nama',
+      'noKtp',
+      'wa',
+      'pekerjaan',
+      'alamat',
+      'barang',
+      'deskripsiSewa',
+      'petugasApproval'
+    ];
+    const inputs = textInputIds.map(id => document.getElementById(id));
+    const jenisSewaSelect = document.getElementById('jenisSewa');
+
+    const fotoInput = document.getElementById('fotoPenyewa');
+    const imagePreviewWrapper = document.getElementById('imagePreviewWrapper');
+    const imagePreview = document.getElementById('imagePreview');
+    const pdfActionContainer = document.getElementById('pdfActionContainer');
+    const statusInfo = document.getElementById('statusInfo');
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+
+    // State gambar & tanda tangan
+    let uploadedImageBase64 = null;
+    let uploadedImageRatio = 1;
+    let hasSigned = false;
+
+    // --- 1. LOGIKA SIGNATURE PAD (CANVAS) ---
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      canvas.width = rect.width * ratio;
+      canvas.height = rect.height * ratio;
+      ctx.scale(ratio, ratio);
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#0f172a';
+    }
+
+    window.addEventListener('load', resizeCanvas);
+
+    function getCoordinates(e) {
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches && e.touches.length > 0) {
+        return {
+          x: e.touches[0].clientX - rect.left,
+          y: e.touches[0].clientY - rect.top
+        };
+      }
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const pos = getCoordinates(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getCoordinates(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      if (!hasSigned) {
+        hasSigned = true;
+        validateForm();
+      }
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      ctx.closePath();
+    }
+
+    // Event Mouse
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    // Event Touch (HP/Tablet)
+    canvas.addEventListener('touchstart', startDrawing, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', stopDrawing);
+
+    // Hapus Tanda Tangan
+    document.getElementById('clearSignature').addEventListener('click', () => {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      hasSigned = false;
+      validateForm();
+    });
+
+    // --- 2. LOGIKA UPLOAD & NORMALISASI GAMBAR ---
+    fotoInput.addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) {
+        uploadedImageBase64 = null;
+        imagePreviewWrapper.classList.add('hidden');
+        validateForm();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const maxDim = 1000;
+          let targetW = img.width;
+          let targetH = img.height;
+
+          if (targetW > maxDim || targetH > maxDim) {
+            if (targetW > targetH) {
+              targetH = Math.round((targetH * maxDim) / targetW);
+              targetW = maxDim;
+            } else {
+              targetW = Math.round((targetW * maxDim) / targetH);
+              targetH = maxDim;
+            }
+          }
+
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = targetW;
+          tempCanvas.height = targetH;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.fillStyle = '#FFFFFF';
+          tempCtx.fillRect(0, 0, targetW, targetH);
+          tempCtx.drawImage(img, 0, 0, targetW, targetH);
+
+          uploadedImageBase64 = tempCanvas.toDataURL('image/jpeg', 0.88);
+          uploadedImageRatio = targetW / targetH;
+
+          imagePreview.src = uploadedImageBase64;
+          imagePreviewWrapper.classList.remove('hidden');
+          validateForm();
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // --- 3. VALIDASI FORM & VISIBILITAS TOMBOL PDF ---
+    function validateForm() {
+      const allTextFilled = inputs.every(input => input.value.trim().length > 0);
+      const isComplete = allTextFilled && uploadedImageBase64 !== null && hasSigned;
+
+      if (isComplete) {
+        pdfActionContainer.classList.remove('hidden');
+        statusInfo.className = 'p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold';
+        statusInfo.textContent = 'Data lengkap! Silakan klik tombol di bawah untuk mengunduh file PDF (Formulir Sewa + Lampiran II Ketentuan).';
+      } else {
+        pdfActionContainer.classList.add('hidden');
+        statusInfo.className = 'p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs';
+
+        const missing = [];
+        if (!allTextFilled) missing.push('seluruh kolom isian teks');
+        if (!uploadedImageBase64) missing.push('upload gambar penyewa');
+        if (!hasSigned) missing.push('tanda tangan penyewa');
+        statusInfo.textContent = `Belum lengkap: Mohon lengkapi ${missing.join(', ')} untuk memunculkan tombol PDF.`;
+      }
+    }
+
+    inputs.forEach(input => input.addEventListener('input', validateForm));
+
+    // --- 4. GENERATE FILE PDF (HALAMAN 1 + LAMPIRAN II) ---
+    generatePdfBtn.addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const nama = document.getElementById('nama').value.trim();
+      const noKtp = document.getElementById('noKtp').value.trim();
+      const wa = document.getElementById('wa').value.trim();
+      const pekerjaan = document.getElementById('pekerjaan').value.trim();
+      const alamat = document.getElementById('alamat').value.trim();
+      const barang = document.getElementById('barang').value.trim();
+      const jenisSewa = jenisSewaSelect.value;
+      const deskripsiSewa = document.getElementById('deskripsiSewa').value.trim();
+      const petugasApproval = document.getElementById('petugasApproval').value.trim();
+
+      const signatureDataUrl = canvas.toDataURL('image/png');
+
+      const tanggalCetak = new Date().toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // =========================================================
+      // HALAMAN 1: FORMULIR & BUKTI PENYEWAAN BARANG
+      // =========================================================
+      doc.setFillColor(15, 23, 42); // Slate-900
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setFillColor(245, 158, 11); // Amber-500 accent line
+      doc.rect(0, 30, 210, 1.5, 'F');
+
+      doc.setTextColor(245, 158, 11);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text('FORMULIR & BUKTI SERAH TERIMA PENYEWAAN', 15, 10);
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.text('RAJA SEWA KAMERA DAN ELEKTRONIK', 15, 18);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Waktu Cetak Dokumen: ${tanggalCetak} WITA`, 15, 25);
+
+      // Judul Bagian Data
+      let yPos = 41;
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.text('I. DATA IDENTITAS & RINCIAN PENYEWAAN', 15, yPos);
+      doc.setDrawColor(203, 213, 225);
+      doc.line(15, yPos + 2, 195, yPos + 2);
+
+      yPos += 9;
+
+      function addFieldRow(label, value) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor(71, 85, 105);
+        doc.text(label, 15, yPos);
+        doc.text(':', 63, yPos);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(15, 23, 42);
+        const wrappedText = doc.splitTextToSize(value, 128);
+        doc.text(wrappedText, 67, yPos);
+
+        yPos += (wrappedText.length * 5) + 3.5;
+      }
+
+      addFieldRow('Nama Penyewa', nama);
+      addFieldRow('No. KTP (NIK)', noKtp);
+      addFieldRow('No. WhatsApp', wa);
+      addFieldRow('Pekerjaan', pekerjaan);
+      addFieldRow('Alamat Penyewa', alamat);
+      addFieldRow('Barang yang Disewa', barang);
+      addFieldRow('Skema Sewa', jenisSewa);
+      addFieldRow('Deskripsi Penyewaan', deskripsiSewa);
+      addFieldRow('Petugas Approval', `${petugasApproval} (Raja Sewa Kamera dan Elektronik)`);
+
+      yPos += 3;
+      doc.setDrawColor(203, 213, 225);
+      doc.line(15, yPos, 195, yPos);
+      yPos += 8;
+
+      // Jika teks sangat panjang hingga mendekati bawah halaman, buat halaman baru untuk lampiran foto & ttd
+      if (yPos > 205) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Bagian Lampiran Foto & Pengesahan 3 Kolom (Foto | TTD Penyewa | Approval Petugas)
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text('II. VERIFIKASI FOTO & PENGESAHAN', 15, yPos);
+      yPos += 6;
+
+      // Kolom 1: Foto Penyewa (x=15, w=56, h=52)
+      const col1X = 15;
+      const colW = 56;
+      const photoBoxH = 52;
+
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('Lampiran Foto Penyewa:', col1X, yPos);
+      doc.setDrawColor(203, 213, 225);
+      doc.rect(col1X, yPos + 2, colW, photoBoxH);
+
+      let drawW = colW - 4;
+      let drawH = drawW / uploadedImageRatio;
+      if (drawH > photoBoxH - 4) {
+        drawH = photoBoxH - 4;
+        drawW = drawH * uploadedImageRatio;
+      }
+      const offsetX = col1X + (colW - drawW) / 2;
+      const offsetY = (yPos + 2) + (photoBoxH - drawH) / 2;
+      doc.addImage(uploadedImageBase64, 'JPEG', offsetX, offsetY, drawW, drawH);
+
+      // Kolom 2: Tanda Tangan Penyewa (x=77, w=56)
+      const col2X = 77;
+      const signBoxH = 34;
+      doc.text('Tanda Tangan Penyewa:', col2X, yPos);
+      doc.rect(col2X, yPos + 2, colW, signBoxH);
+      doc.addImage(signatureDataUrl, 'PNG', col2X + 2, yPos + 4, colW - 4, signBoxH - 4);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`( ${nama} )`, col2X + colW / 2, yPos + signBoxH + 8, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Pihak Penyewa', col2X + colW / 2, yPos + signBoxH + 12.5, { align: 'center' });
+
+      // Kolom 3: Approval Petugas Raja Sewa (x=139, w=56)
+      const col3X = 139;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('Disetujui Oleh (Approval):', col3X, yPos);
+      doc.rect(col3X, yPos + 2, colW, signBoxH);
+
+      // Stempel teks approval digital di dalam kotak petugas
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(5, 150, 105); // Emerald-600
+      doc.text('APPROVED BY ADMIN', col3X + colW / 2, yPos + 16, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Raja Sewa Kamera & Elektronik', col3X + colW / 2, yPos + 21, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`( ${petugasApproval} )`, col3X + colW / 2, yPos + signBoxH + 8, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Petugas Raja Sewa', col3X + colW / 2, yPos + signBoxH + 12.5, { align: 'center' });
+
+      // Footer Halaman 1
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Halaman 1 dari 2 — Dokumen ini satu kesatuan dengan Lampiran II (Syarat & Ketentuan Penyewaan).', 105, 287, { align: 'center' });
+
+      // =========================================================
+      // HALAMAN 2: LAMPIRAN II — SYARAT DAN KETENTUAN PENYEWAAN
+      // =========================================================
+      doc.addPage();
+
+      // Header Lampiran II
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 210, 28, 'F');
+      doc.setFillColor(245, 158, 11);
+      doc.rect(0, 28, 210, 1.5, 'F');
+
+      doc.setTextColor(245, 158, 11);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.text('LAMPIRAN II — SURAT PERNYATAAN & PERJANJIAN SEWA', 15, 10);
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.text('SYARAT DAN KETENTUAN PENYEWAAN', 15, 18);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text('Raja Sewa Kamera dan Elektronik', 15, 24);
+
+      let tY = 40;
+
+      // Pembuka Pernyataan
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9.5);
+      const introText = `Saya yang bertanda tangan di bawah ini, ${nama} (No. KTP/NIK: ${noKtp}), selaku pihak Penyewa pada transaksi penyewaan unit "${barang}" di Raja Sewa Kamera dan Elektronik, dengan ini menyatakan telah membaca, memahami, dan menyetujui seluruh ketentuan penyewaan berikut:`;
+      const introLines = doc.splitTextToSize(introText, 180);
+      doc.text(introLines, 15, tY);
+      tY += (introLines.length * 5) + 6;
+
+      // Daftar Pasal Ketentuan
+      const clauses = [
+        {
+          title: '1. Persetujuan Penyewaan dan Kewajiban Menjaga Barang',
+          body: 'Penyewa menyatakan setuju untuk menyewa barang milik Raja Sewa Kamera dan Elektronik sesuai spesifikasi, kelengkapan, dan durasi yang tercantum pada Halaman 1. Selama masa penyewaan berlangsung, Penyewa wajib menjaga, merawat, menyimpan di tempat yang aman, serta menggunakan barang sewaan secara wajar dan penuh tanggung jawab.'
+        },
+        {
+          title: '2. Tanggung Jawab Ganti Rugi Atas Kerusakan atau Kelalaian',
+          body: 'Apabila selama dalam penguasaan Penyewa terjadi kerusakan fisik, kerusakan fungsi/sistem, cacat lensa/sensor, terkena cairan, terjatuh, maupun hilangnya sebagian/seluruh kelengkapan aksesoris yang disebabkan oleh kelalaian maupun kesengajaan Penyewa, maka Penyewa setuju dan bersedia mengganti seluruh biaya perbaikan resmi atau mengganti unit baru sesuai nilai taksiran kerugian yang ditetapkan oleh pihak Raja Sewa Kamera dan Elektronik.'
+        },
+        {
+          title: '3. Larangan Pemindahtanganan Barang Sewaan',
+          body: 'Penyewa dilarang keras menjual, menggadaikan, menyewakan kembali, meminjamkan, atau memindahtangankan barang sewaan kepada pihak ketiga mana pun tanpa persetujuan tertulis dari pihak Raja Sewa Kamera dan Elektronik.'
+        },
+        {
+          title: '4. Sanksi Tegas Membawa Lari / Penggelapan Barang Sewaan',
+          body: 'Apabila Penyewa membawa lari, menggelapkan, tidak mengembalikan barang setelah batas waktu sewa berakhir tanpa itikad baik/konfirmasi yang sah, atau berupaya menghindar dari tanggung jawab pengembalian unit, maka Penyewa menyatakan SETUJU dan memberikan hak penuh kepada pihak Raja Sewa Kamera dan Elektronik untuk:\n' +
+                'a) Memproses, menyebarluaskan, dan mempublikasikan seluruh biodata, foto wajah, serta dokumen identitas Penyewa (termasuk KTP dan informasi domisili/kontak) melalui media sosial, jaringan komunitas rental/vendor, maupun daftar hitam (blacklist) publik demi kepentingan pencarian barang; serta\n' +
+                'b) Melaporkan dan memproses Penyewa secara hukum pidana (tindak pidana penggelapan sesuai ketentuan KUHP dan peraturan perundang-undangan yang berlaku) maupun gugatan perdata melalui Kepolisian dan instansi penegak hukum yang berwenang.'
+        },
+        {
+          title: '5. Pernyataan Kesadaran dan Kekuatan Hukum',
+          body: 'Surat pernyataan dan ketentuan ini dibuat secara sadar, tanpa paksaan dari pihak mana pun, serta berlaku sah sebagai alat bukti perjanjian yang mengikat antara Penyewa dan Raja Sewa Kamera dan Elektronik.'
+        }
+      ];
+
+      clauses.forEach(clause => {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(15, 23, 42);
+        doc.text(clause.title, 15, tY);
+        tY += 5.5;
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9.2);
+        doc.setTextColor(51, 65, 85);
+        const bodyLines = doc.splitTextToSize(clause.body, 176);
+        doc.text(bodyLines, 19, tY);
+        tY += (bodyLines.length * 4.7) + 5;
+      });
+
+      // Kotak Pengesahan Persetujuan di Bawah Lampiran II
+      tY += 4;
+      doc.setDrawColor(203, 213, 225);
+      doc.line(15, tY, 195, tY);
+      tY += 8;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`Disetujui dan ditandatangani pada: ${tanggalCetak} WITA`, 15, tY);
+      tY += 7;
+
+      // Tanda Tangan Penyewa (kiri) & Petugas Approval (kanan)
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text('Yang Menyatakan / Penyewa,', 15, tY);
+      doc.text('Mengetahui / Petugas Raja Sewa,', 125, tY);
+
+      doc.setDrawColor(203, 213, 225);
+      doc.rect(15, tY + 2, 65, 32);
+      doc.addImage(signatureDataUrl, 'PNG', 17, tY + 4, 61, 28);
+
+      doc.rect(125, tY + 2, 65, 32);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(5, 150, 105);
+      doc.text('VERIFIED & APPROVED', 157.5, tY + 16, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Raja Sewa Kamera dan Elektronik', 157.5, tY + 21, { align: 'center' });
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`( ${nama} )`, 47.5, tY + 40, { align: 'center' });
+      doc.text(`( ${petugasApproval} )`, 157.5, tY + 40, { align: 'center' });
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`NIK: ${noKtp}`, 47.5, tY + 44.5, { align: 'center' });
+      doc.text('Admin / Petugas Approval', 157.5, tY + 44.5, { align: 'center' });
+
+      // Footer Halaman 2
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Halaman 2 dari 2 — Raja Sewa Kamera dan Elektronik', 105, 287, { align: 'center' });
+
+      // Simpan PDF
+      const safeFileName = nama.replace(/[^a-zA-Z0-9]/g, '_');
+      doc.save(`Bukti_Sewa_RajaSewa_${safeFileName}.pdf`);
+    });
+  </script>
+</body>
+</html>
